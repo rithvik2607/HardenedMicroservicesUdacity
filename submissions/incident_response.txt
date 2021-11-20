@@ -1,0 +1,23 @@
+1. Incident commander name:
+Sai Rithvik Ayithapu
+
+2. Executive Summary of what happened:
+Three crypto mining pods of unknown source were launched on the RKE cluster. The crypto miners were moneropool, minergate and cryptotonight.
+
+3. Summary of what was affected:
+Hackers were able to access our Kubernetes clusters and launched crypto mining containers. Their goal was to use our server resources to mine
+cryptocurrencies. 
+
+4. Summmry of the impact:
+The responsiveness of the system was affected. Calls to the kubectl API increased, CPU utilization rose to 99% and memory was overloaded.
+Because of all this the server became irresponsive and laggy.
+
+5. Summary of the remediation steps:
+The falco exporter detected 3 suspicious Kube API calls which were made to create the crypto mining pods. Along with that there was a sudden
+and unexpected increase in the server resource utilization through the Kubernetes Compute Resources in Grafana. Thus, the 3 crypto mining pods
+were identified and deleted.
+
+6. Summary of lessons learned:
+Kubernetes cluster is not secure out of the box. Necessary measures must be taken to secure and harden the cluster. Audits should be conducted
+from time to time to ensure security of the cluster. Access origin of the Kube API server must also be investigated. Unknown containers running
+on our cluster should be discouraged using admission controllers.

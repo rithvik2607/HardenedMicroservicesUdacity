@@ -1,0 +1,47 @@
+Docker Threat Modeling
+1. Spoofing - The most vulnerable area in my opinion is the docker client since any overtake of the docker client will bypass any taken security measurements. 
+Overall, the docker host needs to be hardened to avoid this from happenning. The connection between the docker client and docker daemon can be spoofed. TLS needs to be set up to encrypt the connection.
+2. Tampering - As the consequence of the host compromise, Dockerfile or any important docker daemon file can be tampered with by hacker to modify the containers setup for their own convenience. 
+Auditing policies need to be set for the important configuration files. Also, appopriate ownership and only necessary permission rights need to be set for the files.
+3. Information disclosure - The network communication between the docker containers on the default bridge are allowed from the beginning. This should be disabled to avoid key containers from exposing
+their information to containers on the same bridge.
+4. Elevation of Privileges - Container privileges may be escalated as a result of tampering with the docker configuration or using the --privilege flag. Containers should be restricted from gaining new privileges.
+5. By default, there is no limit on the amount of memory the containers consume. One container can consume all host resources and lead to denial of service for other running container.
+Auditing should be used together with the memory/cpu limits per container to avoid this.
+
+Kubernetes Threat Modeling
+1. Spoofing - Kube-api server is the most vital component of the kubernetes. Calls to the kube-api can be spoofed by hackers as it is not secure by default. TLS needs to be used to encrypt the connection.
+In addition, direct internet access, anonymous or basic authentication should be disabled.
+2. Tampering - etcd containts important configuration settings of the whole cluster. Malicious player might tamper with etcd configurations to change the setup to their own favor. Permissions should be highly
+controlled to avoid this from happenning, 644 should be set to etcd folder together with etcd:etcd ownership.
+3. Information Disclosure - etcd may expose highly sensitive information as it manages key-value store. Again, TLS should be used to encrypt the information in travel and calls other than from API server should be restricted.
+4. Denial of Service - Kubelet is not protected from excessive traffic and load which may lead to denial of service. --protect kernel defaults should be set to true.
+5. Elevation of Privilege - Kubelet is not secure by default. The access to kubelet can be gained and privileges may be elevated. To avoid this, the authorization mode argument should not be set to always allow.
+
+Docker-bench Run Results and Analysis
+Spoofing:
+[FAIL] 2.6.b Ensure TLS authentication for Docker daemon is configured (Scored)
+[FAIL] 2.14.b Ensure Userland Proxy is Disabled (Scored)
+
+Tampering:
+[FAIL] 3.17 Ensure that daemon.json file ownership is set to root:root (Scored)
+[FAIL] 3.18 Ensure that daemon.json file permissions are set to 644 or more restrictive (Scored)
+[FAIL] 1.2.3 Ensure auditing is configured for the docker daemon (Scored)
+[FAIL] 1.2.4 Ensure auditing is configured for Docker files and directories - /var/lib/docker (Scored)
+[FAIL] 1.2.5 Ensure auditing is configured for Docker files and directories - /etc/docker (Scored)
+[FAIL] 1.2.6 Ensure auditing is configured for Docker files and directories - docker.service (Scored)
+[FAIL] 1.2.7 Ensure auditing is configured for Docker files and directories - docker.socket (Scored)
+[FAIL] 1.2.8 Ensure auditing is configured for Docker files and directories - /etc/default/docker (Scored)
+[FAIL] 1.2.10 Ensure auditing is configured for Docker files and directories - /etc/docker/daemon.json (Scored)
+[FAIL] 1.2.11 Ensure auditing is configured for Docker files and directories - /usr/bin/containerd (Scored)
+[FAIL] 1.2.12 Ensure auditing is configured for Docker files and directories - /usr/sbin/runc (Scored)
+
+Information Disclosure:
+[FAIL] 2.2.b Ensure the logging level is set to 'info' (Scored)
+[FAIL] 2.1 Ensure network traffic is restricted between containers on the default bridge (Scored)
+
+Denial of Service:
+[FAIL] 2.13.b Ensure live restore is Enabled (Scored)
+
+Elevation of Privileges:
+[FAIL] 2.17.b Ensure containers are restricted from acquiring new privileges (Scored)

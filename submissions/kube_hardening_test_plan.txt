@@ -1,0 +1,13 @@
+How will you test the changes?
+A copy of the production environment can be created. This will be the test environment. The test environment will have the exact same
+configurtaion of the production environment. We can run tests on this environment to make sure the system is functioning well. If all
+tests are passed, then we can route a small portion of the traffic to the testing environment and make sure everything is working well.
+Monitoring through Grafana and Prometheus can be performed to track system performance. Falco events and CPU/memory load can be tracked
+as well.
+
+How will you ensure the changes don't negatively affect your cluster?
+1. The changes will be tested in the testing environment. 
+2. Canary testing where a small percentage of our users will be routed to the testing environment server will be performed.
+3. If these two cases pass, then the changes can be deployed to production. The production environment will be monitored using
+   Prometheus and Grafana.
+4. In case anything goes wrong we can use Git version control to roll back changes. This will need a reboot.
